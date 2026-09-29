@@ -6,7 +6,6 @@ catalog = [
     {"name": "Кеды", "price": 6000, "qty": 2},
 ]
 
-# Сортировка: сначала «много» (qty > 5), потом «мало»
 sorted_catalog = sorted(catalog, key=lambda x: x["qty"] <= 5)
 
 print("Каталог с индикатором:")
