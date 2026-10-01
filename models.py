@@ -36,7 +36,7 @@ class Product:
     
     def discounted_price(self):
         """Цена со скидкой 25% (упрощённо)."""
-        return self.price * 0.75
+        return self.price * 0.80
 
     def price_with_discount_auto(self, date=None):
         """Цена со скидкой по алгоритму ДЭ."""
