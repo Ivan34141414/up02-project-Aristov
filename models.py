@@ -75,6 +75,10 @@ class Order:
     def total(self):
         """Стоимость заказа."""
         return self.product.price * self.quantity
+        
+    def order_info(self):
+        """Краткая информация о заказе."""
+        return f"Заказ №{self.id} от {self.date}: {self.client}"
 
     def info(self):
         """Строка с информацией о заказе."""
