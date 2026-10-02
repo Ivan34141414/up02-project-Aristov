@@ -64,4 +64,7 @@ def create_product_card(parent, product):
              font=(FONT_FAMILY, 14, "bold"),
              bg=bg_color, anchor="e").pack(fill="x")
 
+    # Разделитель между карточками
+    tk.Frame(parent, bg="#cccccc", height=1).pack(fill="x", padx=10)
+
     return card
