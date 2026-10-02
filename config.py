@@ -2,7 +2,8 @@
 
 DB_PATH = "databases/db_variant_19.db"
 
-APP_TITLE = "Каталог врачей"
-FONT_FAMILY = "Calibri"
-COLOR_HIGHLIGHT = "#ff8080"
-COLOR_HEADER = "#D2F6E7"
+# Название компании-заказчика
+COMPANY_NAME = "Медицинский центр"
+
+# Заголовок приложения
+APP_TITLE = f"Система заказа — {COMPANY_NAME}"
