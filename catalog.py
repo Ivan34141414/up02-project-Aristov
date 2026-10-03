@@ -56,11 +56,21 @@ def _add_text_info(card, product, bg_color, qty):
     exp = product[3] if product[3] else 0
     price = product[4] if product[4] is not None else 0
 
+    # Крайний случай: цена больше 1 000 000
+    if price > 1_000_000:
+        price_str = f"{price:,.0f}".replace(",", " ")
+    else:
+        price_str = f"{price:.0f}"
+
+    # Крайний случай: длинное название
+    if len(name) > 100:
+        name = name[:100] + "..."
+
     _add_label(text_frame, f"{name} | {category}",
                bg_color, bold=True, size=FONT_SIZE_HEADER)
     _add_label(text_frame, f"Количество: {_indicator(qty)} ({qty})", bg_color)
     _add_label(text_frame, f"Стаж: {exp} лет", bg_color)
-    _add_label(text_frame, f"{price:.0f} руб.",
+    _add_label(text_frame, f"{price_str} руб.",
                bg_color, bold=True, size=FONT_SIZE_HEADER, align="e")
 
 
