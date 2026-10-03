@@ -9,12 +9,29 @@ from resources import get_product_image
 
 
 def create_product_card(parent, product):
+    """Создаёт карточку товара по макету."""
     qty = product[5]
-    bg_color = COLOR_HIGHLIGHT if qty <= 3 else COLOR_MAIN_BG
+    bg_color = _get_card_color(qty)
 
     card = tk.Frame(parent, bg=bg_color, bd=1, relief="solid")
     card.pack(fill="x", padx=10, pady=5)
 
+    _add_image(card, product, bg_color)
+    _add_text_info(card, product, bg_color, qty)
+
+    # Разделитель между карточками
+    tk.Frame(parent, bg="#cccccc", height=1).pack(fill="x", padx=10)
+
+    return card
+
+
+def _get_card_color(qty):
+    """Возвращает цвет фона карточки."""
+    return COLOR_HIGHLIGHT if qty <= 3 else COLOR_MAIN_BG
+
+
+def _add_image(card, product, bg_color):
+    """Добавляет изображение товара (или заглушку)."""
     img_frame = tk.Frame(card, bg=bg_color)
     img_frame.pack(side="left", padx=10, pady=10)
 
@@ -27,24 +44,33 @@ def create_product_card(parent, product):
         tk.Label(img_frame, text="[НЕТ ФОТО]", bg=bg_color,
                  width=10, height=5).pack()
 
+
+def _add_text_info(card, product, bg_color, qty):
+    """Добавляет текстовую информацию о товаре."""
     text_frame = tk.Frame(card, bg=bg_color)
     text_frame.pack(side="left", fill="both", expand=True, padx=10, pady=10)
 
-    title = f"{product[2]} | {product[1]}"
-    tk.Label(text_frame, text=title, font=font(FONT_SIZE_HEADER, bold=True),
-             bg=bg_color, anchor="w").pack(fill="x")
+    # Проверка значений (крайние случаи)
+    name = product[2] if product[2] else "[Без имени]"
+    category = product[1] if product[1] else "[Без специальности]"
+    exp = product[3] if product[3] else 0
+    price = product[4] if product[4] is not None else 0
 
-    indicator = "много" if qty > 5 else "мало"
-    tk.Label(text_frame, text=f"Количество: {indicator} ({qty})",
-             font=font(FONT_SIZE_NORMAL), bg=bg_color, anchor="w").pack(fill="x")
+    _add_label(text_frame, f"{name} | {category}",
+               bg_color, bold=True, size=FONT_SIZE_HEADER)
+    _add_label(text_frame, f"Количество: {_indicator(qty)} ({qty})", bg_color)
+    _add_label(text_frame, f"Стаж: {exp} лет", bg_color)
+    _add_label(text_frame, f"{price:.0f} руб.",
+               bg_color, bold=True, size=FONT_SIZE_HEADER, align="e")
 
-    tk.Label(text_frame, text=f"Стаж: {product[3]} лет",
-             font=font(FONT_SIZE_NORMAL), bg=bg_color, anchor="w").pack(fill="x")
 
-    tk.Label(text_frame, text=f"{product[4]:.0f} руб.",
-             font=font(FONT_SIZE_HEADER, bold=True),
-             bg=bg_color, anchor="e").pack(fill="x")
+def _add_label(parent, text, bg_color, bold=False,
+               size=FONT_SIZE_NORMAL, align="w"):
+    """Добавляет метку с текстом."""
+    tk.Label(parent, text=text, font=font(size, bold=bold),
+             bg=bg_color, anchor=align).pack(fill="x")
 
-    tk.Frame(parent, bg="#cccccc", height=1).pack(fill="x", padx=10)
 
-    return card
+def _indicator(qty):
+    """Индикатор «много/мало» (порог 5)."""
+    return "много" if qty > 5 else "мало"
