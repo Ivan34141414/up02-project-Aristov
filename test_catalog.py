@@ -59,13 +59,27 @@ def test_quantity_not_negative():
 
 
 def test_names_not_empty():
-    """Проверяет, что у всех товаров есть имя."""
+    """
+    Проверяет, что у всех товаров есть имя.
+    """
     products = db.get_all_products()
     for p in products:
         if not p[2]:
             print(f"❌ Товар id={p[0]}: пустое имя")
             return False
     return True
+
+
+def test_has_image():
+    """
+    Хотя бы у одного товара есть изображение.
+    """
+    products = db.get_all_products()
+    has_image = any(p[6] for p in products)
+    if has_image:
+        return True
+    print("⚠️ Ни у одного товара нет изображения")
+    return False
 
 
 def run_all_tests():
@@ -79,6 +93,7 @@ def run_all_tests():
         ("Все цены — числа", test_prices_are_numbers),
         ("Количество не отрицательное", test_quantity_not_negative),
         ("Имена не пустые", test_names_not_empty),
+        ("Хотя бы одно изображение", test_has_image),
     ]
 
     print("=" * 60)

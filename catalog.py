@@ -83,4 +83,7 @@ def _add_label(parent, text, bg_color, bold=False,
 
 def _indicator(qty):
     """Индикатор «много/мало» (порог 5)."""
-    return "много" if qty > 5 else "мало"
+    try:
+        return "много" if qty > 5 else "мало"
+    except TypeError:
+        return "мало"
