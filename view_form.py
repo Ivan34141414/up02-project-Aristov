@@ -22,6 +22,7 @@ class ViewForm:
         self.window.configure(bg=COLOR_MAIN_BG)
 
         self.build_ui()
+        
 
     def build_ui(self):
         """Строит интерфейс формы."""
@@ -50,12 +51,28 @@ class ViewForm:
         info_frame = tk.Frame(main, bg=COLOR_MAIN_BG)
         info_frame.pack(side="left", fill="both", expand=True, padx=20)
 
-        # Поля формы (адаптировано под медицину)
+        # Поля формы
         self._add_field(info_frame, "ФИО", self.product[2])
         self._add_field(info_frame, "Специальность", self.product[1])
         self._add_field(info_frame, "Стаж", f"{self.product[3]} лет")
         self._add_field(info_frame, "Цена", f"{self.product[4]:.0f} руб.")
         self._add_field(info_frame, "Количество", self.product[5])
+
+        # Поле ввода количества
+        qty_frame = tk.Frame(self.window, bg=COLOR_MAIN_BG)
+        qty_frame.pack(fill="x", pady=5, padx=20)
+
+        tk.Label(qty_frame, text="Введите количество:",
+                 font=font(FONT_SIZE_NORMAL, bold=True),
+                 bg=COLOR_MAIN_BG).pack(side="left", padx=10)
+
+        self.qty_entry = tk.Entry(qty_frame)
+        self.qty_entry.pack(side="left")
+
+        tk.Button(qty_frame, text="Проверить",
+                  command=self._check_qty,
+                  bg=COLOR_ACCENT, fg="white",
+                  font=font(FONT_SIZE_NORMAL)).pack(side="left", padx=10)
 
         # Кнопки
         btn_frame = tk.Frame(self.window, bg=COLOR_MAIN_BG)
@@ -87,6 +104,7 @@ class ViewForm:
                  font=font(FONT_SIZE_NORMAL),
                  anchor="w",
                  bg=COLOR_MAIN_BG).pack(side="left")
+        
 
     def add_to_order(self):
         """Обработчик кнопки «Добавить в заказ»."""
@@ -104,3 +122,13 @@ class ViewForm:
         except Exception as e:
             messagebox.showerror("Ошибка заказа",
                                  f"Не удалось добавить товар:\n{e}")
+            
+
+    def _check_qty(self):
+        """Проверяет введённое количество (ДЗ)."""
+        from error_handler import validate_positive_int
+        ok, result = validate_positive_int(self.qty_entry.get(), "Количество")
+        if ok:
+            messagebox.showinfo("OK", f"Введено число: {result}")
+        else:
+            messagebox.showwarning("Ошибка", result)
