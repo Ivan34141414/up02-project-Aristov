@@ -22,7 +22,16 @@ def create_product_card(parent, product):
     # Разделитель между карточками
     tk.Frame(parent, bg="#cccccc", height=1).pack(fill="x", padx=10)
 
+    card.bind("<Button-1>", lambda e: _open_view(parent, product))
+    for child in card.winfo_children():
+        child.bind("<Button-1>", lambda e: _open_view(parent, product))
+
     return card
+
+def _open_view(parent, product):
+    """Открывает форму просмотра товара."""
+    from view_form import ViewForm
+    ViewForm(parent, product)
 
 
 def _get_card_color(qty):

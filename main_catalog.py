@@ -73,9 +73,11 @@ class CatalogWindow:
         scrollbar.pack(side="right", fill="y")
 
     def load_products(self):
-        products = db.get_all_products()
+        """Загружает товары с обработкой ошибок."""
+        from error_handler import safe_call
+        products = safe_call(db.get_all_products) or []
         for p in products:
-            create_product_card(self.catalog_frame, p)
+            safe_call(create_product_card, self.catalog_frame, p)
 
             
 
