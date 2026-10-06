@@ -61,6 +61,25 @@ def print_catalog(products):
         print(f"   Цена: {price} руб. | Кол-во: {qty} ({indicator})")
 
     print("=" * 60)
+    
+def get_product_sizes(product_id):
+    """
+    Возвращает список размеров для товара.
+    :param product_id: id товара
+    :return: список размеров
+    """
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    try:
+        cur.execute("SELECT DISTINCT размер FROM Товар WHERE id = ?",
+                    (product_id,))
+        rows = cur.fetchall()
+        conn.close()
+        return [row[0] for row in rows if row[0]]
+    except Exception:
+        conn.close()
+        return []
+
 
 
 if __name__ == "__main__":

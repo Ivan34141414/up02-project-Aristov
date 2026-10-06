@@ -12,6 +12,8 @@ from order_manager import (
     update_product_quantity,
     get_product_quantity
 )
+from db_products import get_product_sizes
+from error_handler import validate_positive_int
 
 
 class ViewForm:
@@ -63,21 +65,36 @@ class ViewForm:
         self._add_field(info_frame, "Цена", f"{self.product[4]:.0f} руб.")
         self._add_field(info_frame, "Количество", self.product[5])
 
-        # Поле ввода количества
+        # == Поле ввода количества ==
         qty_frame = tk.Frame(self.window, bg=COLOR_MAIN_BG)
-        qty_frame.pack(fill="x", pady=5, padx=20)
+        qty_frame.pack(fill="x", pady=10, padx=20)
 
-        tk.Label(qty_frame, text="Введите количество:",
-                 font=font(FONT_SIZE_NORMAL, bold=True),
-                 bg=COLOR_MAIN_BG).pack(side="left", padx=10)
+        tk.Label(qty_frame, text="Количество:",
+                 font=font(FONT_SIZE_NORMAL),
+                 bg=COLOR_MAIN_BG).pack(side="left", padx=5)
+    
+        self.qty_var = tk.StringVar(value="1")
+        qty_entry = tk.Entry(qty_frame, textvariable=self.qty_var,
+                             width=5, font=font(FONT_SIZE_NORMAL))
+        qty_entry.pack(side="left", padx=5)
 
-        self.qty_entry = tk.Entry(qty_frame)
-        self.qty_entry.pack(side="left")
+        # == Выбор размера ==
+        size_frame = tk.Frame(self.window, bg=COLOR_MAIN_BG)
+        size_frame.pack(fill="x", pady=10, padx=20)
 
-        tk.Button(qty_frame, text="Проверить",
-                  command=self._check_qty,
-                  bg=COLOR_ACCENT, fg="white",
-                  font=font(FONT_SIZE_NORMAL)).pack(side="left", padx=10)
+        tk.Label(size_frame, text="Размер:",
+                 font=font(FONT_SIZE_NORMAL),
+                 bg=COLOR_MAIN_BG).pack(side="left", padx=5)
+
+        sizes = get_product_sizes(self.product[0])
+        if not sizes:
+            sizes = ["—"]
+
+        self.size_var = tk.StringVar(value=sizes[0])
+        size_combo = ttk.Combobox(size_frame, textvariable=self.size_var,
+                                  values=sizes, state="readonly",
+                                  width=5, font=font(FONT_SIZE_NORMAL))
+        size_combo.pack(side="left", padx=5)
 
         # Кнопки
         btn_frame = tk.Frame(self.window, bg=COLOR_MAIN_BG)
@@ -113,39 +130,32 @@ class ViewForm:
 
     def add_to_order(self):
         """Обработчик кнопки «Добавить в заказ»."""
+        # 1. Проверяем товар
         if not self.product:
             messagebox.showerror("Ошибка", "Товар не выбран")
             return
 
-        try:
-            product_id = self.product[0]
-            current_qty = get_product_quantity(product_id)
+        # 2. Валидация количества
+        ok, result = validate_positive_int(self.qty_var.get(), "Количество")
+        if not ok:
+            messagebox.showwarning("Ошибка ввода", result)
+            return
+        qty = result
 
-            if current_qty < 1:
-                messagebox.showwarning("Товар закончился",
-                                       f"Врача «{self.product[2]}» больше нет")
-                return
+        # 3. Проверяем, что количество не больше доступного
+        current_qty = get_product_quantity(self.product[0])
+        if qty > current_qty:
+            messagebox.showwarning("Ошибка",
+                                   f"Доступно только {current_qty} шт.")
+            return
 
-            new_qty = current_qty - 1
-
-            add_order_to_db("Иванов Иван Иванович", product_id, 1)
-            update_product_quantity(product_id, new_qty)
-
-            messagebox.showinfo("Успех", "Заказ оформлен")
-
-            if self.on_add_to_order:
-                self.on_add_to_order()
-
-        except Exception as e:
-            messagebox.showerror("Ошибка заказа",
-                                 f"Не удалось оформить заказ:\n{e}")
-            
-
-    def _check_qty(self):
-        """Проверяет введённое количество (ДЗ)."""
-        from error_handler import validate_positive_int
-        ok, result = validate_positive_int(self.qty_entry.get(), "Количество")
-        if ok:
-            messagebox.showinfo("OK", f"Введено число: {result}")
-        else:
-            messagebox.showwarning("Ошибка", result)
+        # 4. Вызываем callback
+        if self.on_add_to_order:
+            try:
+                self.on_add_to_order(self.product, qty, self.size_var.get())
+                messagebox.showinfo("Успех",
+                                    f"Товар добавлен в заказ ({qty}) шт.")
+                self.window.destroy()
+            except Exception as e:
+                messagebox.showerror("Ошибка заказа",
+                                     f"Не удалось добавить товар:\n{e}")
