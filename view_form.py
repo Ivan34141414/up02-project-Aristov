@@ -7,6 +7,11 @@ from styles import (
     FONT_SIZE_NORMAL, FONT_SIZE_HEADER, FONT_SIZE_TITLE, font
 )
 from resources import load_image, get_product_image
+from order_manager import (
+    add_order_to_db,
+    update_product_quantity,
+    get_product_quantity
+)
 
 
 class ViewForm:
@@ -108,20 +113,32 @@ class ViewForm:
 
     def add_to_order(self):
         """Обработчик кнопки «Добавить в заказ»."""
-        if not self.on_add_to_order:
-            messagebox.showinfo("Информация", "Функция в разработке")
-            return
-
         if not self.product:
             messagebox.showerror("Ошибка", "Товар не выбран")
             return
 
         try:
-            self.on_add_to_order(self.product)
-            messagebox.showinfo("Успех", "Товар добавлен в заказ")
+            product_id = self.product[0]
+            current_qty = get_product_quantity(product_id)
+
+            if current_qty < 1:
+                messagebox.showwarning("Товар закончился",
+                                       f"Врача «{self.product[2]}» больше нет")
+                return
+
+            new_qty = current_qty - 1
+
+            add_order_to_db("Иванов Иван Иванович", product_id, 1)
+            update_product_quantity(product_id, new_qty)
+
+            messagebox.showinfo("Успех", "Заказ оформлен")
+
+            if self.on_add_to_order:
+                self.on_add_to_order()
+
         except Exception as e:
             messagebox.showerror("Ошибка заказа",
-                                 f"Не удалось добавить товар:\n{e}")
+                                 f"Не удалось оформить заказ:\n{e}")
             
 
     def _check_qty(self):

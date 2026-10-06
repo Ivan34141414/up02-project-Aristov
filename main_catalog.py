@@ -6,6 +6,7 @@ from config import APP_TITLE
 import database as db
 from catalog import create_product_card
 from resources import load_image_proportional, PATH_LOGO, PATH_ICON
+from error_handler import safe_call
 
 def set_app_icon(root, icon_path):
     """Устанавливает иконку приложения кроссплатформенно."""
@@ -74,11 +75,16 @@ class CatalogWindow:
 
     def load_products(self):
         """Загружает товары с обработкой ошибок."""
-        from error_handler import safe_call
         products = safe_call(db.get_all_products) or []
         for p in products:
-            safe_call(create_product_card, self.catalog_frame, p)
-
+            safe_call(create_product_card, self.catalog_frame, p,
+                      refresh=self.refresh_catalog)
+            
+    def refresh_catalog(self):
+        """Обновляет каталог после заказа."""
+        for widget in self.catalog_frame.winfo_children():
+            widget.destroy()
+        self.load_products()
             
 
     def run(self):
