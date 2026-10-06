@@ -80,7 +80,7 @@ class CatalogWindow:
             safe_call(create_product_card, self.catalog_frame, p,
                       refresh=self.refresh_catalog)
             
-    def refresh_catalog(self):
+    def refresh_catalog(self, *args):
         """Обновляет каталог после заказа."""
         for widget in self.catalog_frame.winfo_children():
             widget.destroy()

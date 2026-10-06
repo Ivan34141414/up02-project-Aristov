@@ -9,6 +9,7 @@ from styles import (
 from resources import load_image, get_product_image
 from order_manager import (
     add_order_to_db,
+    add_order_item,
     update_product_quantity,
     get_product_quantity
 )
@@ -149,13 +150,27 @@ class ViewForm:
                                    f"Доступно только {current_qty} шт.")
             return
 
-        # 4. Вызываем callback
-        if self.on_add_to_order:
-            try:
+        # 4. Оформляем заказ
+        try:
+            # Создаём заказ (только клиент)
+            order_id = add_order_to_db("Иванов Иван Иванович")
+
+            # Добавляем позицию в состав (размер 0 — у нас нет размеров)
+            price = float(self.product[4])
+            add_order_item(order_id, self.product[0], qty, price)
+
+            # Обновляем количество товара
+            new_qty = current_qty - qty
+            update_product_quantity(self.product[0], new_qty)
+
+            messagebox.showinfo("Успех",
+                                f"Товар добавлен в заказ ({qty}) шт.")
+
+            if self.on_add_to_order:
                 self.on_add_to_order(self.product, qty, self.size_var.get())
-                messagebox.showinfo("Успех",
-                                    f"Товар добавлен в заказ ({qty}) шт.")
-                self.window.destroy()
-            except Exception as e:
-                messagebox.showerror("Ошибка заказа",
-                                     f"Не удалось добавить товар:\n{e}")
+
+            self.window.destroy()
+
+        except Exception as e:
+            messagebox.showerror("Ошибка заказа",
+                                 f"Не удалось оформить заказ:\n{e}")
