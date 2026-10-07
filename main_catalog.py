@@ -1,7 +1,7 @@
 """Главное окно с каталогом."""
 import tkinter as tk
 from tkinter import ttk
-from styles import COLOR_SECONDARY_BG, FONT_SIZE_TITLE, font
+from styles import COLOR_SECONDARY_BG, COLOR_ACCENT, FONT_SIZE_NORMAL, FONT_SIZE_TITLE, font
 from config import APP_TITLE
 import database as db
 from catalog import create_product_card
@@ -59,6 +59,12 @@ class CatalogWindow:
                  font=font(FONT_SIZE_TITLE, bold=True),
                  bg=COLOR_SECONDARY_BG).pack(expand=True)
 
+        # Кнопка "Заказы" (для Менеджера)
+        tk.Button(header, text="Заказы", command=self.open_orders,
+          bg=COLOR_ACCENT, fg="white",
+          font=font(FONT_SIZE_NORMAL),
+          padx=10, pady=5).pack(side="right", padx=10)
+
         # Область с прокруткой
         self.canvas = tk.Canvas(self.root, bg="white", highlightthickness=0)
         scrollbar = ttk.Scrollbar(self.root, orient="vertical",
@@ -89,6 +95,11 @@ class CatalogWindow:
 
     def run(self):
         self.root.mainloop()
+
+    def open_orders(self):
+        """Открывает окно списка заказов."""
+        from orders_window import OrdersWindow
+        OrdersWindow(self.root)    
         
 
 
