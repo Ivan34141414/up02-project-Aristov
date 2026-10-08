@@ -297,6 +297,7 @@ def get_order_by_id(order_id):
     conn.close()
     return row
 
+
 def delete_order_item(item_id):
     """
     Удаляет позицию из состава заказа.
