@@ -17,30 +17,29 @@ def get_categories():
     """Список всех специальностей."""
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
-    cur.execute("SELECT DISTINCT специальность FROM Товар ORDER BY специальность")
+    cur.execute(
+        "SELECT DISTINCT специальность FROM Товар ORDER BY специальность")
     categories = [row[0] for row in cur.fetchall()]
     conn.close()
     return categories
 
 
-
-def create_table():
+def get_user_by_login(login):
+    """
+    Ищет пользователя по логину.
+    :param login: логин
+    :return: кортеж (id, фамилия, имя, отчество, логин, роль) или None
+    """
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
     cur.execute("""
-CREATE TABLE IF NOT EXISTS Состав_заказа (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    заказ_id INTEGER NOT NULL,
-    товар_id INTEGER NOT NULL,
-    размер INTEGER,
-    количество INTEGER NOT NULL,
-    цена REAL NOT NULL,
-    FOREIGN KEY (заказ_id) REFERENCES Заказ(id) ON DELETE CASCADE,
-    FOREIGN KEY (товар_id) REFERENCES Товар(id)
-)
-""")
-
-    conn.commit()
+        SELECT Пользователь.id, Пользователь.фамилия,
+               Пользователь.имя, Пользователь.отчество,
+               Пользователь.логин, Роль.название
+        FROM Пользователь
+        JOIN Роль ON Пользователь.роль_id = Роль.id
+        WHERE Пользователь.логин = ?
+    """, (login,))
+    row = cur.fetchone()
     conn.close()
-
-    print("✅ Таблица Состав_заказа создана")
+    return row

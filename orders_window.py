@@ -11,11 +11,14 @@ import order_manager as om
 class OrdersWindow:
     """Окно списка заказов."""
 
-    def __init__(self, parent):
+    def __init__(self, parent, current_user=None):
         """
         Инициализация окна.
         :param parent: родительское окно
+        :param current_user: текущий пользователь (кортеж) или None
         """
+        self.current_user = current_user
+
         self.window = tk.Toplevel(parent)
         self.window.title("Список заказов")
         self.window.geometry("800x500")
@@ -88,7 +91,8 @@ class OrdersWindow:
             for order in orders:
                 self.tree.insert("", tk.END, values=order)
         except Exception as e:
-            messagebox.showerror("Ошибка", f"Не удалось загрузить заказы:\n{e}")
+            messagebox.showerror(
+                "Ошибка", f"Не удалось загрузить заказы:\n{e}")
 
     def on_order_select(self, event=None):
         """Обработчик выбора заказа."""
